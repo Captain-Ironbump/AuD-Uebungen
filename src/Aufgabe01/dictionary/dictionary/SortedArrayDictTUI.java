@@ -74,7 +74,7 @@ public class SortedArrayDictTUI
     }
 
     private static void execHelp() {
-        System.out.println("not implemented yet");
+
         System.out.print("create:\t\t\t\t\t\t\tLegt ein Dictionary an. SortedArrayDictionary ist voreingestellt.\n");
         System.out.print("""
                 read <n>:\t\t\t\t\t\tLiest (read) die ersten n Eintraege der Datei in das Dictionary ein.
