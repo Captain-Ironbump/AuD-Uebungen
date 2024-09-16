@@ -2,9 +2,7 @@
 // 22.09.2022
 package Aufgabe01.dictionary.dictionary;
 
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * Implementation of the Dictionary interface as AVL tree.
@@ -17,31 +15,177 @@ import java.util.NoSuchElementException;
  * @param <K> Key.
  * @param <V> Value.
  */
-public class BinaryTreeDictionary<K, V> implements Dictionary<K, V> {
+public class BinaryTreeDictionary<K extends Comparable<? super K>, V> implements Dictionary<K, V> {
+
+
+    private static class MinEntry<K, V> {
+        private K key;
+        private V value;
+    }
 
     @Override
     public V insert(K key, V value) {
-        return null;
+        this.root = insertR(key, value, this.root);
+        if (this.root != null) {
+            this.root.parent = null;
+        }
+        return this.oldValue;
+    }
+
+    private Node<K,V> insertR(K key, V value, Node<K,V> p) {
+        if (p == null) {
+            p = new Node<>(key, value);
+            this.oldValue = null;
+            this.size++;
+        } else if (key.compareTo(p.key) < 0) {
+            p.left = insertR(key, value, p.left);
+            if (p.left != null) {
+                p.left.parent = p;
+            }
+        } else if (key.compareTo(p.key) > 0) {
+            p.right = insertR(key, value, p.right);
+            if (p.right != null) {
+                p.right.parent = p;
+            }
+        } else {
+            this.oldValue = p.value;
+            p.value = value;
+        }
+        return p;
     }
 
     @Override
     public V search(K key) {
-        return null;
+        return searchR(key, this.root);
+    }
+
+    private V searchR(K key, Node<K, V> p) {
+        if (p == null) return null;
+        if (key.compareTo(p.key) < 0) return searchR(key, p.left);
+        if (key.compareTo(p.key) > 0) return searchR(key, p.right);
+        return p.value;
     }
 
     @Override
     public V remove(K key) {
-        return null;
+        this.root = removeR(key, this.root);
+        return this.oldValue;
+    }
+
+    private Node<K,V> removeR(K key, Node<K,V> p) {
+        if (p == null) {
+            this.oldValue = null;
+        } else if (key.compareTo(p.key) < 0) {
+            p.left = removeR(key, p.left);
+            if (p.left != null) {
+                p.left.parent = p;
+            }
+        } else if (key.compareTo(p.key) > 0) {
+            p.right = removeR(key, p.right);
+            if (p.right != null) {
+                p.right.parent = p;
+            }
+        } else if (p.left == null || p.right == null) {
+            // p loeschen + ein Kind
+            this.oldValue = p.value;
+            if (p.left != null) {
+                p.left.parent = p.parent;
+                p = p.left;
+            } else if (p.right != null) {
+                p.right.parent = p.parent;
+                p = p.right;
+            } else {
+                p = null;
+            }
+            this.size--;
+        } else {
+            // p loeschen + 2 Kinder
+            MinEntry<K, V> min = new MinEntry<>();
+            p.right = getRemMinR(p.right, min);
+            if (p.right != null) {
+                p.right.parent = p;
+            }
+            this.oldValue = p.value;
+            p.key = min.key;
+            p.value = min.value;
+            this.size--;
+        }
+        return p;
+    }
+
+    /**
+     * loescht im Baum p den Knoten mit kleinstem Schluessel und liefert Schluessel und Daten
+     * des geloeschten Knotens ueber min zurueck.
+     * @param p Baum
+     * @param min HilfsdatenTyp
+     * @return neuer Baum
+     */
+    private Node<K,V> getRemMinR(Node<K,V> p, MinEntry<K,V> min) {
+        assert p != null;
+        if (p.left == null) {
+            min.key = p.key;
+            min.value = p.value;
+            p = p.right;
+        } else {
+            p.left = getRemMinR(p.left, min);
+        }
+        return p;
     }
 
     @Override
     public int size() {
-        return 0;
+        return this.size;
     }
 
     @Override
     public Iterator<Entry<K, V>> iterator() {
-        return null;
+        return new BTDIterator();
+    }
+
+    private class BTDIterator implements Iterator<Entry<K, V>> {
+        private Node<K,V> current;
+        private int step;
+
+        public BTDIterator() {
+            this.step = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return step < size();
+        }
+
+        @Override
+        public Entry<K, V> next() {
+            if (!hasNext()) {
+                return null;
+            }
+            if (this.step == 0 && root != null) {
+                this.current = leftMostDescendant(root);
+            } else if (this.current.right != null) {
+                this.current = leftMostDescendant(this.current.right);
+            } else {
+                this.current = parentOfLeftMostAncestor(current);
+            }
+            this.step++;
+            return new Entry<>(this.current.key, this.current.value);
+        }
+    }
+
+    private Node<K, V> leftMostDescendant(Node<K, V> p) {
+        assert p != null;
+        while(p.left != null) {
+            p = p.left;
+        }
+        return p;
+    }
+
+    private Node<K, V> parentOfLeftMostAncestor(Node<K, V> p) {
+        assert p != null;
+        while(p.parent != null && p.parent.right == p) {
+            p = p.parent;
+        }
+        return p.parent;
     }
 
     static private class Node<K, V> {
@@ -64,6 +208,7 @@ public class BinaryTreeDictionary<K, V> implements Dictionary<K, V> {
     
     private Node<K, V> root = null;
     private int size = 0;
+    private V oldValue = null;
     
     // ...
 
@@ -79,7 +224,7 @@ public class BinaryTreeDictionary<K, V> implements Dictionary<K, V> {
         if (p == null) {
             System.out.println("#");
         } else {
-            System.out.println(p.key + " " + p.value + "^" + ((p.parent == null) ? "null" : p.parent.key));
+            System.out.println(p.key + " " + p.value + "^" + ((p.parent == null) ? "null" : p.parent.key.toString()));
             if (p.left != null || p.right != null) {
                 printR(level + 1, p.left);
                 printR(level + 1, p.right);

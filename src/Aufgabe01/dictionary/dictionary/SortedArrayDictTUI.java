@@ -3,12 +3,14 @@ package Aufgabe01.dictionary.dictionary;
 
 import javax.swing.*;
 import java.io.*;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Scanner;
 
 
 public class SortedArrayDictTUI
 {
+    private static JFrame frame;
     private static Dictionary<String, String> dictionary;
     
     public static void main(String[] args) throws Exception {
@@ -132,11 +134,14 @@ public class SortedArrayDictTUI
     }
 
     private static void execRead(String[] args) throws Exception {
-
+        if (args.length > 2) {
+            System.out.println("to many arguments in read!");
+            return;
+        }
 
         JFileChooser chooser = new JFileChooser();
 
-        int rueckgabeWert = chooser.showOpenDialog(null);
+        int rueckgabeWert = chooser.showOpenDialog(frame);
 
         /* Abfrage, ob auf "Öffnen" geklickt wurde */
         if(rueckgabeWert == JFileChooser.APPROVE_OPTION) {
