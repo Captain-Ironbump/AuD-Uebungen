@@ -204,13 +204,13 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>, V> implements
         p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
         if (getBalance(p) == -2) { // left too high
             if (getBalance(p.left) <= 0) { // left left
-                p = rotateLeft(p);
+                p = rotateRight(p);
             } else {
                 p = rotateLeftRight(p);
             }
         } else if (getBalance(p) == 2) { // right too high
            if (getBalance(p.right) >= 0) { // right right
-                p = rotateRight(p);
+                p = rotateLeft(p);
             } else {
                 p = rotateRightLeft(p);
             }
@@ -226,7 +226,8 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>, V> implements
         if (p.left != null) {
             p.left.parent = p;
         }
-        p.right = p; // p becomes right child of q
+        q.right = p; // p becomes right child of q
+        q.right.parent = q;
         // height update:
         p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
         q.height = Math.max(getHeight(q.left), getHeight(q.right)) + 1;
@@ -242,6 +243,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>, V> implements
             p.right.parent = p;
         }
         q.left = p; // p becomes left child of q
+        q.left.parent = q;
         // height update:
         p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
         q.height = Math.max(getHeight(q.left), getHeight(q.right)) + 1;

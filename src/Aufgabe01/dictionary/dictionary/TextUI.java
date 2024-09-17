@@ -198,7 +198,11 @@ public class TextUI
     private static void execDelete(String[] args) {
         if (args.length != 1)
             return;
-        dictionary.remove(args[0]);
+        String deletedEntry = dictionary.remove(args[0]);
+        if (deletedEntry != null)
+            System.out.println("successfully deleted!");
+        else
+            System.out.println("entry not found!");
     }
 
     private static void execInsert(String[] args) {
