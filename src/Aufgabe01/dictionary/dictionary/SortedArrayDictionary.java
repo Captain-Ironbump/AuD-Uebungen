@@ -2,16 +2,22 @@ package Aufgabe01.dictionary.dictionary;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class SortedArrayDictionary<K extends Comparable<? super K>, V> implements Dictionary<K, V> {
 
     private static final int DEF_CAPACITY = 16;
     private int size;
-    private Entry<K,V>[] data;
+    private Entry<K, V>[] data;
 
+    public interface Comparable<T> {
+        int compareTo(T o);
+    }
+
+    @SuppressWarnings("unchecked")
     public SortedArrayDictionary() {
         this.size = 0;
-        this.data = new Entry[DEF_CAPACITY];
+        this.data = (Entry<K, V>[]) new Entry[DEF_CAPACITY];
     }
 
     @Override
@@ -29,12 +35,12 @@ public class SortedArrayDictionary<K extends Comparable<? super K>, V> implement
         if (data.length == size) {
             data = Arrays.copyOf(data, 2*size);
         }
-        int j = size-1;
+        int j = size - 1;
         while (j >= 0 && key.compareTo(data[j].getKey()) < 0) {
-            data[j+1] = data[j];
+            data[j + 1] = data[j];
             j--;
         }
-        data[j+1] = new Entry<>(key, value);
+        data[j + 1] = new Entry<>(key, value);
         size++;
         return null;
     }
@@ -91,18 +97,19 @@ public class SortedArrayDictionary<K extends Comparable<? super K>, V> implement
     {
         return new Iterator<Dictionary.Entry<K,V>>()
         {
-            int currentIndex = 0;
+            int index = -1; // -1 because next() increments index before returning
 
             @Override
-            public boolean hasNext()
-            {
-                return currentIndex < size;
+            public boolean hasNext() {
+                return ((index + 1) < data.length && data[index + 1] != null);
             }
 
             @Override
-            public Entry<K, V> next()
-            {
-                return data[currentIndex++];
+            public Entry<K, V> next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return data[++index];
             }
         };
     }

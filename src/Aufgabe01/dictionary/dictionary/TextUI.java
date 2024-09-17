@@ -2,19 +2,69 @@ package Aufgabe01.dictionary.dictionary;
 
 
 import javax.swing.*;
+
+import java.util.List;
 import java.io.*;
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
 
-public class SortedArrayDictTUI
+public class TextUI
 {
     private static JFrame frame;
     private static Dictionary<String, String> dictionary;
+    private static Scanner scanner;
+    
+    public enum DictionaryType {
+        ARR(1), HASH(2), BIN(3);
+
+        private final int value;
+
+        DictionaryType(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static DictionaryType fromString(String dictString) {
+            for (DictionaryType dictType : DictionaryType.values()) {
+                if (dictType.toString().equalsIgnoreCase(dictString)) {
+                    return dictType;
+                }
+            }
+            throw new IllegalArgumentException("Dictionary not found!");
+        }
+
+    }
+
+    public enum Measurement {
+        SUCCESS(1), UNSUCCESS(2);
+
+        private final int value;
+
+        Measurement(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static Measurement fromString(String measureString) {
+            for (Measurement measureType : Measurement.values()) {
+                if (measureType.toString().equalsIgnoreCase(measureString)) {
+                    return measureType;
+                }
+            }
+            throw new IllegalArgumentException("Measurement not found!");
+        }
+    }
     
     public static void main(String[] args) throws Exception {
-        Scanner scanner = new Scanner(System.in);
+        scanner = new Scanner(System.in);
         do
         {
             System.out.print(">> ");
@@ -22,7 +72,6 @@ public class SortedArrayDictTUI
             if (rawInput.isEmpty())
                 return;
             parseCommand(rawInput);
-
         } while (true);
     }
 
@@ -69,30 +118,76 @@ public class SortedArrayDictTUI
             case "help":
                 execHelp();
                 break;
+            case "msmt":
+                if (isDictionaryInitialised())
+                    execMeasurement(Arrays.copyOfRange(args, 1, args.length));
+                else
+                    System.out.println("No dictionary initialised! Use 'create'");
+                break;
             default:
+                break;
+        }
+    }
 
+    private static void execMeasurement(String[] args) {
+        if (args.length != 1) {
+            System.out.println("please select the type of measurement!");
+            System.out.println("Options are: 'success', 'unsuccess'");
+            return;
+        }
+
+        Measurement measureType;
+        try {
+            measureType = Measurement.fromString(args[0]);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
+        switch (measureType) {
+            case SUCCESS:
+                List<String> keys = new ArrayList<>();
+                for (var e : dictionary)
+                    keys.add(e.getKey());
+                final long timeStart = System.currentTimeMillis();
+                for (String key : keys)
+                    dictionary.search(key);
+                final long timeEnd = System.currentTimeMillis();
+                System.out.println((timeEnd - timeStart) + "ms");
+                break;
+            case UNSUCCESS:
+                List<String> values = new ArrayList<>();
+                for (var e : dictionary)
+                    values.add(e.getValue());
+                final long timeStart2 = System.currentTimeMillis();
+                for (String value : values)
+                    dictionary.search(value);
+                final long timeEnd2 = System.currentTimeMillis();
+                System.out.println((timeEnd2 - timeStart2) + "ms");
+                break;
+            default:
                 break;
         }
     }
 
     private static void execHelp() {
 
-        System.out.print("create:\t\t\t\t\t\t\tLegt ein Dictionary an. SortedArrayDictionary ist voreingestellt.\n");
+        System.out.print("create:\t\t\t\t\t\t\tLegt ein Dictionary an. Optionen sind SortedArrayDictionary (arr), HashDictionary (hash) und BinaryDictionary (bin).\n");
         System.out.print("""
                 read <n>:\t\t\t\t\t\tLiest (read) die ersten n Eintraege der Datei in das Dictionary ein.
-                \t\t\t\t\t\t\t\tWird n weggelassen, dann werden alle Eintraege eingelesen.
+                \t\t\t\t\t\t\tWird n weggelassen, dann werden alle Eintraege eingelesen.
                 """);
         System.out.print("""
                 print:\t\t\t\t\t\t\tGibt alle Eintraege des Dictionary in der Konsole aus.
                 """);
         System.out.print("""
-                search <deustch>:\t\t\t\tGibt das entsprechende englische Wort aus.
+                search <deustch>:\t\t\t\t\tGibt das entsprechende englische Wort aus.
                 """);
         System.out.print("""
-                insert <deustch> <englisch>:\tFuegt ein neues Wortpaar in das Dictionary ein.
+                insert <deustch> <englisch>:\t\t\t\tFuegt ein neues Wortpaar in das Dictionary ein.
                 """);
         System.out.print("""
-                delete <deustch>:\t\t\t\tLoescht einen Eintrag.
+                delete <deustch>:\t\t\t\t\tLoescht einen Eintrag.
                 """);
         System.out.print("""
                 exit:\t\t\t\t\t\t\tbeendet das Programm.
@@ -143,11 +238,13 @@ public class SortedArrayDictTUI
 
         int rueckgabeWert = chooser.showOpenDialog(frame);
 
+        BufferedReader reader = null;
+
         /* Abfrage, ob auf "Öffnen" geklickt wurde */
         if(rueckgabeWert == JFileChooser.APPROVE_OPTION) {
             try {
                 long startTime = System.nanoTime();
-                BufferedReader reader = new BufferedReader(new FileReader(chooser.getSelectedFile()));
+                reader = new BufferedReader(new FileReader(chooser.getSelectedFile()));
                 if (args.length == 1) {
                     while (true) {
                         String line = reader.readLine();
@@ -183,23 +280,44 @@ public class SortedArrayDictTUI
                 System.out.println("File not found");
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                reader.close();
             }
         }
     }
 
     private static void execCreate(String[] args) throws Exception {
+        if (args.length != 2) {
+            System.out.println("please provide type of dictionary [arr | hash | bin]!");
+            return;
+        }
 
-        if (args.length == 1) {
-            dictionary = new SortedArrayDictionary<>();
-            System.out.println("Sorted Array successfully created!");
-        } else if (args.length == 2) {
-            if (args[1].contains("hash")) {
+        DictionaryType dictionaryType;
+        try {
+            dictionaryType = DictionaryType.fromString(args[1]);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
+        System.out.println("creating dictionary...");
+
+        switch (dictionaryType) {
+            case ARR:
+                dictionary = new SortedArrayDictionary<>();
+                System.out.println("Sorted Array successfully created!");
+                break;
+            case HASH:
                 dictionary = new HashDictionary<>(3);
                 System.out.println("Hash Dictionary successfully created");
-            } else if (args[1].contains("binary")) {
-                System.out.println("BinarySearchDictionary not implemented yet!\nExit with Code 1\n...");
-                System.exit(1);
-            }
+                break;
+            case BIN:
+                dictionary = new BinaryTreeDictionary<>();
+                System.out.println("Binary Dictionary successfully created");
+                break;
+            default:
+                System.out.println("Dictionary not found!");
+                break;
         }
     }
 
@@ -208,6 +326,8 @@ public class SortedArrayDictTUI
     }
 
     private static void execExit() {
+        scanner.close();
+        System.out.println("Scanner closed!");
         System.out.println("Thank you for using our Service!\nHave a good day");
         System.exit(0);
     }
