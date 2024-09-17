@@ -4,8 +4,6 @@ package Aufgabe01.dictionary.dictionary;
 
 import java.util.Iterator;
 
-import org.w3c.dom.Node;
-
 /**
  * Implementation of the Dictionary interface as AVL tree.
  * <p>
