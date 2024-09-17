@@ -4,6 +4,8 @@ package Aufgabe01.dictionary.dictionary;
 
 import java.util.Iterator;
 
+import org.w3c.dom.Node;
+
 /**
  * Implementation of the Dictionary interface as AVL tree.
  * <p>
@@ -51,6 +53,7 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>, V> implements
             this.oldValue = p.value;
             p.value = value;
         }
+        p = balance(p);
         return p;
     }
 
@@ -186,6 +189,83 @@ public class BinaryTreeDictionary<K extends Comparable<? super K>, V> implements
             p = p.parent;
         }
         return p.parent;
+    }
+
+    private int getHeight(Node<K, V> p) {
+        return p == null ? -1 : p.height;
+    }
+
+    private int getBalance(Node<K, V> p) {
+        return p == null ? 0 : getHeight(p.right) - getHeight(p.left);
+    }
+
+    private Node<K, V> balance(Node<K, V> p) {
+        if (p == null) {
+            return null;
+        }
+        p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
+        if (getBalance(p) == -2) { // left too high
+            if (getBalance(p.left) <= 0) { // left left
+                p = rotateLeft(p);
+            } else {
+                p = rotateLeftRight(p);
+            }
+        } else if (getBalance(p) == 2) { // right too high
+           if (getBalance(p.right) >= 0) { // right right
+                p = rotateRight(p);
+            } else {
+                p = rotateRightLeft(p);
+            }
+        }
+        return p;
+    }
+
+    private Node<K, V> rotateRight(Node<K, V> p) {
+        assert p.left != null;
+        Node<K, V> q = p.left;
+        q.parent = p.parent;
+        p.left = q.right; // p gets right child of q
+        if (p.left != null) {
+            p.left.parent = p;
+        }
+        p.right = p; // p becomes right child of q
+        // height update:
+        p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
+        q.height = Math.max(getHeight(q.left), getHeight(q.right)) + 1;
+        return q;
+    }
+
+    private Node<K, V> rotateLeft(Node<K, V> p) {
+        assert p.right != null;
+        Node<K, V> q = p.right;
+        q.parent = p.parent;
+        p.right = q.left; // p gets left child of q
+        if (p.right != null) {
+            p.right.parent = p;
+        }
+        q.left = p; // p becomes left child of q
+        // height update:
+        p.height = Math.max(getHeight(p.left), getHeight(p.right)) + 1;
+        q.height = Math.max(getHeight(q.left), getHeight(q.right)) + 1;
+        return q;
+    }
+
+    private Node<K, V> rotateLeftRight(Node<K, V> p) {
+        assert p.left != null;
+        p.left = rotateLeft(p.left);
+        if (p.left != null) {
+            p.left.parent = p;
+        }
+        return rotateRight(p);
+    }
+
+    private Node<K, V> rotateRightLeft(Node<K, V> p) {
+        assert p.right != null;
+        p.right = rotateRight(p.right);
+        if (p.right != null) {
+            p.right.parent = p;
+        }
+        return rotateLeft(p);
     }
 
     static private class Node<K, V> {
