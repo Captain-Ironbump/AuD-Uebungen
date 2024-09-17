@@ -228,6 +228,10 @@ public class TextUI
     }
 
     private static void execPrint() {
+        if (dictionary.size() == 0) {
+            System.out.println("Dictionary is empty!");
+            return;
+        }
         for (var e : dictionary)
             System.out.println(e.getKey() + " - " + e.getValue());
     }
