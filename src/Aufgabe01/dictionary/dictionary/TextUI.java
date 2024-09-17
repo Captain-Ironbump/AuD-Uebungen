@@ -244,6 +244,8 @@ public class TextUI
 
         JFileChooser chooser = new JFileChooser();
 
+        chooser.setCurrentDirectory(new File("./src/Aufgabe01/dictionary/dictionary"));
+
         int rueckgabeWert = chooser.showOpenDialog(frame);
 
         BufferedReader reader = null;
