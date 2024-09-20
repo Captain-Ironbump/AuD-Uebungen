@@ -15,6 +15,9 @@ public class DirectedCycle<V> {
 	// ...
 	private final List<V> cycle = new LinkedList<>();	// ein Zyklus, falls vorhanden
 	private final DirectedGraph<V> myGraph;
+	private Set<V> visited;
+	private Stack<V> path;
+	private Set<V> nodeInPath;
 
 	/**
 	 * Führt eine Tiefensuche für g durch und prüft dabei auf Zyklen.
@@ -22,8 +25,30 @@ public class DirectedCycle<V> {
 	 * @param g gerichteter Graph.
 	 */
 	public DirectedCycle(DirectedGraph<V> g) {
-		myGraph = g;
-		// ...
+		this.myGraph = g;
+		this.visited = new TreeSet<>();
+		this.path = new Stack<>();
+		this.nodeInPath = new TreeSet<>();
+
+		for (V v : g.getVertexSet()) {
+			if (!this.visited.contains(v))
+				searchDirectedCycle(v);
+		}
+	}
+
+	void searchDirectedCycle(V v) {
+		this.visited.add(v);
+		this.path.push(v);
+		this.nodeInPath.add(v);
+
+		for (V w : this.myGraph.getSuccessorVertexSet(v)) {
+			if (!visited.contains(w)) {
+				searchDirectedCycle(w);
+			} else if (this.nodeInPath.contains(w)) {
+				this.cycle.addAll(this.path.subList(this.path.indexOf(w), this.path.size()));
+				return;
+			}
+		}
 	}
 
 	
