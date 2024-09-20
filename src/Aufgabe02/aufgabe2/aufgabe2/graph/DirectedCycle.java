@@ -46,9 +46,10 @@ public class DirectedCycle<V> {
 				searchDirectedCycle(w);
 			} else if (this.nodeInPath.contains(w)) {
 				this.cycle.addAll(this.path.subList(this.path.indexOf(w), this.path.size()));
-				return;
 			}
 		}
+		this.path.pop();
+		this.nodeInPath.remove(v);
 	}
 
 	
