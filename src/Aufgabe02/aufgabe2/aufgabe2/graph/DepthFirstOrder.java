@@ -23,7 +23,6 @@ public class DepthFirstOrder<V> {
     private int numberOfDFTrees = 0;
 	// ...
     private Set<V> visited = new TreeSet<>();
-    private Set<V> vertices = new TreeSet<>();
 
     /**
      * Führt eine Tiefensuche für g durch.
@@ -32,21 +31,22 @@ public class DepthFirstOrder<V> {
      */
     public DepthFirstOrder(DirectedGraph<V> g) {
         this.myGraph = g;
-        this.vertices = g.getVertexSet();
+        Set<V> nodes = g.getVertexSet();
+        for (V v : nodes) {
+            if (!this.visited.contains(v)) {
+                numberOfDFTrees++;
+                visitDF(v);
+            }
+        }
     }
 
-    public void visitDF(V v, DirectedGraph<V> g) {
-        this.visited.clear();
-        visitDF(v, g, this.visited);
-    }
-
-    private void visitDF(V v, DirectedGraph<V> g, Set<V> visited2) {
+    private void visitDF(V v) {
         this.visited.add(v);
         this.preOrder.add(v);
 
-        for (V w : g.getSuccessorVertexSet(v)) {
-            if (!this.visited.contains(w)) {
-                visitDF(w, g, this.visited);
+        for (V w : this.myGraph.getSuccessorVertexSet(v)) {
+            if (!visited.contains(w)) {
+                visitDF(w);
             }
         }
         this.postOrder.add(v);
