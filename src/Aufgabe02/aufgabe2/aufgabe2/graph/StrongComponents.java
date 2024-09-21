@@ -3,12 +3,7 @@
 
 package Aufgabe02.aufgabe2.aufgabe2.graph;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Klasse für Bestimmung aller strengen Komponenten.
@@ -31,6 +26,39 @@ public class StrongComponents<V> {
 	 */
 	public StrongComponents(DirectedGraph<V> g) {
 		// ...
+		DepthFirstOrder<V> dfs = new DepthFirstOrder<>(g);
+		List<V> postOrder = dfs.postOrder();
+		List<V> postOrderInverted = new ArrayList<>();
+		for (int i = postOrder.size() - 1; i >= 0; i--) {
+			V v = postOrder.get(i);
+			postOrderInverted.add(v);
+		}
+
+		DirectedGraph<V> gi = g.invert();
+		visitDF(postOrderInverted, gi);
+		this.numberOfComp = this.comp.size();
+	}
+
+	private void visitDF(List<V> visiting, DirectedGraph<V> g) {
+		Set<V> visited = new TreeSet<>();
+		int index = 0;
+		for (V v : visiting) {
+			if (!visited.contains(v)) {
+				this.comp.put(index, new TreeSet<>());
+				visitDF(v, g, visited, index);
+				index++;
+			}
+		}
+	}
+
+	private void visitDF(V v, DirectedGraph<V> g, Set<V> visited, int index) {
+		visited.add(v);
+		this.comp.get(index).add(v);
+		for (V w : g.getSuccessorVertexSet(v)) {
+			if (!visited.contains(w)) {
+				visitDF(w, g, visited, index);
+			}
+		}
 	}
 	
 	/**
@@ -43,7 +71,11 @@ public class StrongComponents<V> {
 
 	@Override
 	public String toString() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		StringBuilder sb = new StringBuilder();
+		for (var e : this.comp.entrySet()) {
+			sb.append("Component " + e.getKey() + ": " + e.getValue() + "\n");
+		}
+		return sb.toString();
 	}
 	
 		
@@ -76,3 +108,8 @@ public class StrongComponents<V> {
             // Component 3: 4, 
 	}
 }
+
+
+// Der reduzierte Graph muss azyklisch sein (warum?).
+// Antwort: weil sonst die Komponenten nicht streng wären.
+// 
