@@ -20,12 +20,13 @@ public class Map extends JPanel {
 	private Graphics2D g2d;
 	private BasicStroke bs;
 	private static final int brushSize = 3;
+	private static final String DATA_PATH = "src/Aufgabe03/aufgabe3/aufgabe3/data/";
 	
 	public Map() throws IOException {
 		size = new Dimension();
 		
 		// create a buffered image and copy image data from file to buffer
-		bimage = ImageIO.read(new File("data/london.jpg"));
+		bimage = ImageIO.read(new File(DATA_PATH + "london.jpg"));
 		g2d = bimage.createGraphics();
 		size.width = bimage.getWidth(null);
 		size.height = bimage.getHeight(null);

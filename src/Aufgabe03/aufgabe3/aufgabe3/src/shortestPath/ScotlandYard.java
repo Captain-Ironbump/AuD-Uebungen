@@ -26,6 +26,7 @@ public class ScotlandYard {
 	private static DirectedGraph<Integer> syGraph; // Scotland Spielplan als Graph
 	private static SYSimulation sim; // Scotland Yard Simulator
 	private static ShortestPath<Integer> sySpAStar; // A*
+	private static final String DATA_PATH = "src/Aufgabe03/aufgabe3/aufgabe3/data/";
 	static {
 		try {
 			syGraph = getGraph();
@@ -34,6 +35,7 @@ public class ScotlandYard {
 		}
 		try {
 			sim = new SYSimulation();
+			System.out.println("Simulation wird gestartet...");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -48,9 +50,9 @@ public class ScotlandYard {
 	/**
 	 * Scotland-Yard Anwendung.
 	 * @param args wird nicht verwendet.
-	 * @throws FileNotFoundException
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) {
 		shortestPath(65, 157, 9.0);
 		shortestPath(7, 190, 24.0);
 		shortestPath(1, 17, 17.0);
@@ -117,7 +119,7 @@ public class ScotlandYard {
 	public static DirectedGraph<Integer> getGraph() throws FileNotFoundException {
 
 		DirectedGraph<Integer> sy_graph = new AdjacencyListDirectedGraph<>();
-		Scanner in = new Scanner(new File("data/ScotlandYard_Kanten.txt"));
+		Scanner in = new Scanner(new File(DATA_PATH + "ScotlandYard_Kanten.txt"));
 
 		for (int v = 1; v <= 199; v++)
 			sy_graph.addVertex(v);

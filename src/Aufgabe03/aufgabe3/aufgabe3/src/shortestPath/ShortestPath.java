@@ -8,6 +8,8 @@ import Aufgabe03.aufgabe3.aufgabe3.src.sim.SYSimulation;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedList;
+import java.util.ArrayList;
 
 // ...
 
@@ -25,7 +27,12 @@ public class ShortestPath<V> {
 	Map<V,V> pred; 				// Vorgänger für jeden Knoten
 	IndexMinPQ<V,Double> cand; 	// Kandidaten als PriorityQueue PQ
 	// ...
-
+	DirectedGraph<V> graph; // Graph
+	Heuristic<V> heu; // Heuristik
+	V start; // Startknoten zur Wegfindung
+	V ziel; // Zielknoten zur Wegfindung
+	boolean pathFound;
+	
 	/**
 	 * Konstruiert ein Objekt, das im Graph g k&uuml;rzeste Wege 
 	 * nach dem A*-Verfahren berechnen kann.
@@ -40,7 +47,8 @@ public class ShortestPath<V> {
 		dist = new HashMap<>();
 		pred = new HashMap<>();
 		cand = new IndexMinPQ<>();
-		// ...
+		graph = g;
+		heu = h;
 	}
 
 	/**
@@ -69,6 +77,45 @@ public class ShortestPath<V> {
 	 */
 	public void searchShortestPath(V s, V g) {
 		// ...
+		this.start = s;
+		this.ziel = g;
+		for (V v : graph.getVertexSet()) {
+			this.dist.put(v, Double.POSITIVE_INFINITY);
+			this.pred.put(v, null);
+		}
+		this.dist.put(s, 0.0);
+		// Heuristik entscheidet welcher Algorithmus verwendet wird
+		if (this.heu != null) { // A* Algorithmus 
+			this.cand.add(s, 0 + this.heu.estimatedCost(s, g));
+		} else { // Dijkstra Algorithmus
+			this.cand.add(s, 0.0);
+		}
+
+		while (!this.cand.isEmpty()) {
+			V v = this.cand.removeMin();
+			// System.out.println("Besuche Knoten " + v.toString() + " mit d = " + this.dist.get(v));
+			if (this.sim != null) {
+				this.sim.visitStation((Integer) v, java.awt.Color.blue);
+			}
+			if (v.equals(g)) {
+				this.cand.clear();
+				pathFound = true;
+				return;
+			}
+			for (V w : graph.getSuccessorVertexSet(v)) {
+				double newDist = this.dist.get(v) + graph.getWeight(v, w);
+				if (this.dist.get(w) == Double.POSITIVE_INFINITY || newDist < this.dist.get(w)) {
+					this.pred.put(w, v);
+					this.dist.put(w, newDist);
+					if (this.heu != null) {
+						this.cand.add(w, newDist + this.heu.estimatedCost(w, g));
+					} else {
+						this.cand.add(w, newDist);
+					}
+				}
+			}
+		}
+		pathFound = false;
 	}
 
 	/**
@@ -79,7 +126,21 @@ public class ShortestPath<V> {
 	 */
 	public List<V> getShortestPath() {
 		// ...
-		return null;
+		List<V> path = new LinkedList<>();
+		if (pathFound) {
+			V k = this.ziel;
+			path.add(k);
+			while (!k.equals(this.start)) {
+				path.add(this.pred.get(k));
+				k = this.pred.get(k);
+			}
+			List<V> revPath = new LinkedList<>();
+			for (int i = path.size() - 1; i >= 0; i--) {
+				revPath.add(path.get(i));
+			}
+			return revPath;
+		}
+		throw new IllegalArgumentException("Kein kürzester Weg berechnet.");
 	}
 
 	/**
@@ -90,7 +151,9 @@ public class ShortestPath<V> {
 	 */
 	public double getDistance() {
 		// ...
-		return 0.0;
+		if (pathFound)
+			return this.dist.get(this.ziel);
+		throw new IllegalArgumentException("Kein kürzester Weg berechnet.");
 	}
 
 }

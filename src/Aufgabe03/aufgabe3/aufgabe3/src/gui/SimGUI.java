@@ -42,12 +42,13 @@ public class SimGUI extends JFrame implements Runnable,ActionListener,ChangeList
 	private volatile int SLEEP_TIME;
 	private static final int SLEEP_TIME_MAX = 1000; // 5000
 	private static final String windowName = "Scotland Yard Simulation";
+	private static final String DATA_PATH = "src/Aufgabe03/aufgabe3/aufgabe3/data/";
 	
 	public SimGUI() throws IOException {
 		stations = new TreeMap<Integer, Station>();
 		//String f = this.getClass().getResource("stations.txt").getPath();
 		//System.out.println("Filename = " + f);
-		readStationsFromFile("data/stations.txt");
+		readStationsFromFile(DATA_PATH + "stations.txt");
 		mapEntries = new Vector<MapEntry>();
 		mapEntriesReplay = new Vector<MapEntry>();
 		lock = new Object();
