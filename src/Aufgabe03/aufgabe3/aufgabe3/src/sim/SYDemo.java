@@ -1,6 +1,5 @@
 package Aufgabe03.aufgabe3.aufgabe3.src.sim; 
 
-import Aufgabe03.aufgabe3.aufgabe3.src.sim.SYSimulation;
 import java.awt.Color;
 import java.io.IOException;
 

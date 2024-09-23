@@ -2,6 +2,7 @@ package Aufgabe03.aufgabe3.aufgabe3.src.shortestPath;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -17,7 +18,7 @@ import java.util.Scanner;
  */
 public class ScotlandYardHeuristic implements Heuristic<Integer> {
     private Map<Integer, Point> coord; // Ordnet jedem Knoten seine Koordinaten zu
-
+    private static final String DATA_PATH = "src/Aufgabe03/aufgabe3/aufgabe3/data/";
     private static class Point {
         int x;
         int y;
@@ -35,6 +36,20 @@ public class ScotlandYardHeuristic implements Heuristic<Integer> {
     public ScotlandYardHeuristic() throws FileNotFoundException {
         // Lese Koordinaten von ScotlandYard_Knoten.txt in eine Map.
         // ...
+        try (Scanner scanner = new Scanner(new File(DATA_PATH + "ScotlandYard_Knoten.txt"))) {
+            this.coord = new HashMap<>();
+            while (scanner.hasNext()) {
+                int node = scanner.nextInt();
+                int x = scanner.nextInt();
+                int y = scanner.nextInt();
+                coord.put(node, new Point(x, y));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // for (var entry : coord.entrySet()) {
+        //     System.out.println(entry.getKey() + " -> " + "(" + entry.getValue().x + ", " + entry.getValue().y + ")");
+        // }
     }
 
     /**
@@ -47,7 +62,10 @@ public class ScotlandYardHeuristic implements Heuristic<Integer> {
      */
     public double estimatedCost(Integer u, Integer v) {
         // ...
-        // TODO: Implementieren Sie die Methode estimatedCost in der Klasse ScotlandYardHeuristic.
-        return 0.0;
+        Point p1 = coord.get(u);
+        Point p2 = coord.get(v);
+        double dx = p2.x - p1.x;
+        double dy = p2.y - p1.y;
+        return Math.sqrt(dx * dx + dy * dy) * 0.02;
     }
 }

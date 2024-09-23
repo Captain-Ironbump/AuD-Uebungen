@@ -66,7 +66,7 @@ public class Map extends JPanel {
 	
 	public void clearMap() throws IOException {
 		g2d.dispose();
-		bimage = ImageIO.read(new File("data/london.jpg"));
+		bimage = ImageIO.read(new File(DATA_PATH + "london.jpg"));
 		g2d = bimage.createGraphics();
 		repaint();
 	}

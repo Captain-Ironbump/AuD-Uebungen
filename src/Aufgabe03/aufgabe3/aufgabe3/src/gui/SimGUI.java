@@ -110,6 +110,7 @@ public class SimGUI extends JFrame implements Runnable,ActionListener,ChangeList
         	simThread = new Thread(this);
         	try {
 				map.clearMap();
+				// System.out.println("Map cleared!");	
 			} catch (IOException e) {
 				System.out.println("Failed to load map, unable to start sequence " + name + " !");
 				return;
