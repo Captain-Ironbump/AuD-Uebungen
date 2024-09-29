@@ -43,7 +43,7 @@ public interface ITelNet {
      * @param yMax - Maximale y-Größe.
      * @throws IllegalStateException- falls nicht zuvor {@link #computeOptTelNet() computeOptTelNet() } erfolgreich durchgeführt wurde.
      */
-    public void drawOptTelNet(int xMax, int yMax) throws IllegalStateException; 
+    public void drawOptTelNet(int xMax, int yMax, boolean directDraw) throws IllegalStateException; 
     
     /**
      * Fügt {@code n} zufällige Telefonknoten zum Netz dazu mit x-Koordinate aus [0,{@code xMax}] und y-Koordinate aus [0,{@code yMax}].  
