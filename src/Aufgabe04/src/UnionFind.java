@@ -69,6 +69,11 @@ public class UnionFind<T> implements IUnionFind<T> {
         }
     }
 
+    public int size() {
+        return this.p.size();
+    }
+
+
     public static void main(String[] args) {
         UnionFind<Integer> uf = new UnionFind<>(new Integer[]{1, 2, 3, 4, 5, 6, 7, 8});
         Integer s1 = uf.find(1);
